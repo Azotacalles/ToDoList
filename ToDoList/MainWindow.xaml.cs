@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ToDoList.Models;
+using ToDoList.Services;
 
 namespace ToDoList
 {
@@ -23,6 +24,8 @@ namespace ToDoList
     public partial class MainWindow : Window
     {
         private BindingList<ToDoModel> toDoList;
+        private FileIOService fileIOService;
+        private readonly string path = $"{Environment.CurrentDirectory}\\todoList.json";
 
         public MainWindow()
         {
@@ -31,11 +34,17 @@ namespace ToDoList
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            toDoList = new BindingList<ToDoModel>()
+            fileIOService = new FileIOService(path);
+
+            try
             {
-                new ToDoModel() { TaskName = "Task 1" },
-                new ToDoModel() { TaskName = "Task 2" }
-            };
+                toDoList = fileIOService.LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                Close();
+            }
 
             ToDoGrid.ItemsSource = toDoList;
             toDoList.ListChanged += ToDoList_ListChanged;
@@ -43,26 +52,19 @@ namespace ToDoList
 
         private void ToDoList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            switch (e.ListChangedType)
+            if(e.ListChangedType == ListChangedType.ItemAdded ||
+               e.ListChangedType == ListChangedType.ItemDeleted ||
+               e.ListChangedType == ListChangedType.ItemChanged)
             {
-                case ListChangedType.Reset:
-                    break;
-                case ListChangedType.ItemAdded:
-                    break;
-                case ListChangedType.ItemDeleted:
-                    break;
-                case ListChangedType.ItemMoved:
-                    break;
-                case ListChangedType.ItemChanged:
-                    break;
-                case ListChangedType.PropertyDescriptorAdded:
-                    break;
-                case ListChangedType.PropertyDescriptorDeleted:
-                    break;
-                case ListChangedType.PropertyDescriptorChanged:
-                    break;
-                default:
-                    break;
+                try
+                {
+                    fileIOService.SaveData(toDoList);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    Close();
+                }
             }
         }
     }

@@ -18,10 +18,6 @@ namespace ToDoList.Models
 
         protected virtual void OnPropertyChanged(string nameProp)
         {
-            //if(PropertyChanged!= null)
-            //{
-            //    PropertyChanged(this, new PropertyChangedEventArgs(nameProp));
-            //}
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameProp));
         }
 
